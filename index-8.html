@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Smart Light & Traffic Hub</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Thai",sans-serif;background:#f5f7f8;color:#17202a}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
+.app{max-width:430px;margin:auto;min-height:100vh;background:#fff;position:relative;padding-bottom:78px;box-shadow:0 0 30px #0001}
+header{padding:18px 18px 12px;background:linear-gradient(135deg,#fff,#fff9df);border-bottom:1px solid #eee}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:48px;height:48px;border-radius:14px;background:#111;color:#ffd11a;display:grid;place-items:center;font-size:25px}.brand h1{font-size:20px;margin:0}.brand p{font-size:12px;margin:2px 0;color:#667}
+.top-actions{margin-left:auto;display:flex;gap:8px}.iconbtn{background:#fff;border:1px solid #eee;border-radius:12px;padding:8px}
+.screen{display:none;padding:14px}.screen.active{display:block}
+.hero{border-radius:22px;padding:18px;background:linear-gradient(135deg,#fff5bd,#fff);margin-bottom:12px}
+.hero h2{margin:0 0 4px;font-size:22px}.hero p{margin:0;color:#555}
+.teamrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.team{padding:14px;border-radius:18px;background:#effaf5;border:1px solid #d9f0e5}.team.b{background:#fff8df}.team strong{display:block}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:#2ebd79}.b .dot{background:#f2a900}
+.card{background:#fff;border:1px solid #e8ecef;border-radius:20px;padding:15px;margin:12px 0;box-shadow:0 4px 14px #00000008}.card h3{margin:0 0 12px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px;border-radius:17px;background:#f6faf8}.stat.yellow{background:#fff9e8}.num{font-size:30px;font-weight:800}.muted{color:#77808a;font-size:13px}
+.menu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.menu button{min-height:90px;background:#fafafa;border:1px solid #e9ecef;border-radius:15px;padding:7px;font-size:12px}.menu b{display:block;font-size:25px;margin-bottom:5px}
+.task{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #eee}.task:last-child{border:0}.taskicon{width:38px;height:38px;border-radius:12px;background:#fff3c4;display:grid;place-items:center}.pill{margin-left:auto;padding:4px 9px;border-radius:99px;background:#eaf8f0;color:#16824d;font-size:11px}.pill.work{background:#eaf3ff;color:#2671c7}.pill.urgent{background:#ffe9e9;color:#d73737}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);height:72px;background:#fff;border-top:1px solid #ddd;display:grid;grid-template-columns:repeat(5,1fr);z-index:20}.bottom button{background:#fff;color:#667;padding:7px 2px}.bottom button.active{color:#d79b00;font-weight:700}.bottom b{display:block;font-size:21px}
+.field{margin:10px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;background:#fff}.field textarea{min-height:90px;resize:vertical}
+.primary{width:100%;padding:13px;border-radius:13px;background:#ffca18;font-weight:800}.secondary{padding:10px 13px;border-radius:12px;background:#f1f3f5}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+.progress{height:9px;background:#edf0f1;border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;background:#2ebd79}.progress.yellow span{background:#f1b300}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#17202a;color:#fff;padding:11px 16px;border-radius:12px;display:none;z-index:50;font-size:13px}.toast.show{display:block}
+.map{height:310px;border-radius:18px;background:linear-gradient(30deg,#edf2f4 12%,transparent 12.5%,transparent 87%,#edf2f4 87.5%),linear-gradient(150deg,#edf2f4 12%,transparent 12.5%,transparent 87%,#edf2f4 87.5%),#fff;position:relative;overflow:hidden;border:1px solid #ddd}.road{position:absolute;background:#fff;border:2px solid #d8dee2}.r1{width:120%;height:35px;top:125px;left:-10%;transform:rotate(-12deg)}.r2{width:35px;height:120%;left:205px;top:-10%;transform:rotate(18deg)}.pin{position:absolute;font-size:25px}.p1{left:23%;top:28%}.p2{left:67%;top:58%}.p3{left:43%;top:72%}
+.badge{font-size:11px;padding:4px 8px;border-radius:8px;background:#f4f4f4}.empty{padding:35px 10px;text-align:center;color:#888}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="brand">
+  <div class="logo">⚡🚦</div>
+  <div><h1>Smart Light & Traffic Hub</h1><p>ไฟสว่าง ปลอดภัย ใส่ใจจราจร ⚡</p></div>
+  <div class="top-actions"><button class="iconbtn" onclick="show('notifications')">🔔</button><button class="iconbtn" onclick="show('settings')">☰</button></div>
+ </div>
+</header>
+
+<main>
+<section id="home" class="screen active">
+ <div class="hero"><h2>ทีมพร้อมลุย! 💪</h2><p>เพื่อเมืองที่สว่างและปลอดภัย</p></div>
+ <div class="teamrow">
+  <button class="team" onclick="show('teamA')"><strong>🧑‍🔧 ทีม A</strong><span><i class="dot"></i>พร้อมปฏิบัติงาน</span></button>
+  <button class="team b" onclick="show('teamB')"><strong>👷 ทีม B</strong><span><i class="dot"></i>กำลังลงพื้นที่</span></button>
+ </div>
+ <div class="card"><h3>📊 ภาพรวมงานวันนี้ <span class="muted" style="float:right">6 ก.ย. 2569</span></h3>
+  <div class="stats">
+   <div class="stat"><div class="muted">ทีม A · ไฟฟ้าแสงสว่าง</div><div><span class="num" id="aDone">18</span> / 22</div><div class="progress"><span style="width:82%"></span></div></div>
+   <div class="stat yellow"><div class="muted">ทีม B · จราจร</div><div><span class="num" id="bDone">16</span> / 20</div><div class="progress yellow"><span style="width:80%"></span></div></div>
+  </div>
+ </div>
+ <div class="card"><h3>เมนูหลัก</h3><div class="menu">
+  <button onclick="show('newTask')"><b>🚨</b>แจ้งเหตุเร่งด่วน</button>
+  <button onclick="show('tasks')"><b>🔄</b>สถานะงาน 2 ทีม</button>
+  <button onclick="show('handoff')"><b>🤝</b>ส่งต่อเคส</button>
+  <button onclick="show('tasks')"><b>⚠️</b>เคสค้างท่อ</button>
+  <button onclick="show('reports')"><b>🎯</b>เป้าหมาย (SLA)</button>
+  <button onclick="show('reports')"><b>📊</b>สถิติรายเดือน</button>
+  <button onclick="show('map')"><b>📍</b>แผนที่จุดเกิดเหตุ</button>
+  <button onclick="show('teams')"><b>⚙️</b>จัดการทีม</button>
+ </div></div>
+ <div class="card"><h3>🕘 รายการล่าสุด</h3><div id="recent"></div></div>
+</section>
+
+<section id="tasks" class="screen">
+ <h2>📋 งานทั้งหมด</h2>
+ <div class="row"><button class="secondary" onclick="filterTasks('all')">ทั้งหมด</button><button class="secondary" onclick="filterTasks('A')">ทีม A</button><button class="secondary" onclick="filterTasks('B')">ทีม B</button></div>
+ <div class="card" id="taskList"></div>
+</section>
+
+<section id="newTask" class="screen">
+ <h2>🚨 แจ้งงานใหม่</h2>
+ <div class="card">
+  <div class="field"><label>ประเภทงาน</label><select id="type"><option>ไฟฟ้าดับ</option><option>ไฟถนนเสีย</option><option>สัญญาณไฟจราจรขัดข้อง</option><option>ป้ายจราจรชำรุด</option></select></div>
+  <div class="field"><label>ทีมที่รับผิดชอบ</label><select id="team"><option value="A">ทีม A · ไฟฟ้าแสงสว่าง</option><option value="B">ทีม B · งานจราจร</option></select></div>
+  <div class="field"><label>สถานที่เกิดเหตุ</label><input id="place" placeholder="เช่น ซอยรามคำแหง 12"></div>
+  <div class="field"><label>รายละเอียดปัญหา</label><textarea id="detail" placeholder="กรอกรายละเอียดเพิ่มเติม..."></textarea></div>
+  <div class="field"><label>แนบรูป (จำลอง)</label><input type="file" id="photo" accept="image/*"></div>
+  <button class="primary" onclick="addTask()">📤 ยืนยันแจ้งงาน</button>
+ </div>
+</section>
+
+<section id="handoff" class="screen">
+ <h2>🤝 ส่งต่อเคส</h2><div class="card">
+ <p>เลือกงานที่ต้องการโอนความรับผิดชอบให้ทีมอื่น</p>
+ <div id="handoffList"></div>
+ </div></section>
+
+<section id="notifications" class="screen"><h2>🔔 แจ้งเตือน</h2><div class="card" id="notiList"></div></section>
+
+<section id="reports" class="screen"><h2>📊 รายงาน</h2>
+ <div class="card"><h3>สรุปภาพรวม</h3><div class="stats"><div class="stat"><div class="muted">งานทั้งหมด</div><div class="num" id="total">24</div></div><div class="stat"><div class="muted">เสร็จแล้ว</div><div class="num" id="done">16</div></div></div></div>
+ <div class="card"><h3>ประสิทธิภาพทีม</h3><p>ทีม A · 82%</p><div class="progress"><span style="width:82%"></span></div><p>ทีม B · 80%</p><div class="progress yellow"><span style="width:80%"></span></div></div>
+ <div class="card"><h3>📈 สถานะงาน</h3><div id="reportRows"></div></div>
+</section>
+
+<section id="map" class="screen"><h2>🗺️ แผนที่จุดเกิดเหตุ</h2><div class="map"><div class="road r1"></div><div class="road r2"></div><div class="pin p1">⚡</div><div class="pin p2">🚦</div><div class="pin p3">📍</div></div><div class="card"><b>จุดงานทั้งหมด</b><p class="muted">กดจุดบนแผนที่เพื่อดูรายละเอียด (เวอร์ชัน Prototype)</p></div></section>
+
+<section id="teamA" class="screen"><h2>🧑‍🔧 ทีม A · ไฟฟ้าแสงสว่าง</h2><div class="card"><h3>สถานะทีม</h3><p>🟢 พร้อมปฏิบัติงาน</p><p>สมาชิก 8 คน · งานวันนี้ 22 งาน</p><button class="primary" onclick="show('tasks');filterTasks('A')">ดูงานทีม A</button></div></section>
+<section id="teamB" class="screen"><h2>🚦 ทีม B · งานจราจร</h2><div class="card"><h3>สถานะทีม</h3><p>🔵 กำลังลงพื้นที่</p><p>สมาชิก 6 คน · งานวันนี้ 20 งาน</p><button class="primary" onclick="show('tasks');filterTasks('B')">ดูงานทีม B</button></div></section>
+
+<section id="teams" class="screen"><h2>👥 จัดการทีม</h2><div class="card"><h3>🧑‍🔧 ทีม A</h3><p>สมาชิก 8 คน · งานเสร็จ 18 · งานค้าง 4</p><button class="secondary" onclick="show('teamA')">ดูรายละเอียด</button></div><div class="card"><h3>🚦 ทีม B</h3><p>สมาชิก 6 คน · งานเสร็จ 16 · งานค้าง 4</p><button class="secondary" onclick="show('teamB')">ดูรายละเอียด</button></div><button class="primary" onclick="toast('ฟังก์ชันเพิ่มทีมพร้อมต่อยอดในเวอร์ชัน Backend')">＋ เพิ่มทีมใหม่</button></section>
+
+<section id="settings" class="screen"><h2>⚙️ ตั้งค่า</h2><div class="card">
+ <div class="task">👤 <b>ข้อมูลส่วนตัว</b><span>›</span></div><div class="task">🔒 <b>เปลี่ยนรหัสผ่าน</b><span>›</span></div><div class="task">🔔 <b>การแจ้งเตือน</b><span>เปิด</span></div><div class="task">💚 <b>เชื่อมต่อ LINE</b><span class="pill work">ยังไม่เชื่อมต่อ</span></div><div class="task">🏢 <b>ข้อมูลองค์กร</b><span>›</span></div>
+ </div></section>
+</main>
+
+<nav class="bottom">
+ <button onclick="show('home')" data-s="home"><b>⌂</b>หน้าหลัก</button>
+ <button onclick="show('tasks')" data-s="tasks"><b>▤</b>รายการงาน</button>
+ <button onclick="show('newTask')" data-s="newTask"><b>＋</b>แจ้งงาน</button>
+ <button onclick="show('reports')" data-s="reports"><b>▥</b>รายงาน</button>
+ <button onclick="show('settings')" data-s="settings"><b>⚙</b>ตั้งค่า</button>
+</nav>
+<div id="toast" class="toast"></div>
+</div>
+<script>
+let tasks=[
+ {id:1,type:'ไฟถนนเสีย',place:'ซอย 12',team:'A',status:'กำลังดำเนินการ',time:'32 นาทีที่แล้ว'},
+ {id:2,type:'สัญญาณไฟจราจรขัดข้อง',place:'แยก A',team:'B',status:'เร่งด่วน',time:'1 ชม.ที่แล้ว'},
+ {id:3,type:'เสาไฟฟ้า',place:'ซอยสุขุมวิท 23',team:'A',status:'รออุปกรณ์',time:'2 ชม.ที่แล้ว'},
+ {id:4,type:'ป้ายจราจรชำรุด',place:'ทางแยกตลาด',team:'B',status:'เสร็จสิ้น',time:'3 ชม.ที่แล้ว'}
+];
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(x=>x.classList.toggle('active',x.dataset.s===id));render();window.scrollTo(0,0)}
+function toast(t){let x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
+function statusClass(s){return s==='เสร็จสิ้น'?'':' '+(s==='เร่งด่วน'?'urgent':'work')}
+function renderList(arr=tasks){document.getElementById('taskList').innerHTML=arr.map(t=>`<div class="task"><div class="taskicon">${t.team==='A'?'⚡':'🚦'}</div><div><b>${t.type}</b><div class="muted">${t.place} · ทีม ${t.team}</div></div><button class="pill${statusClass(t.status)}" onclick="cycleStatus(${t.id})">${t.status}</button></div>`).join('')}
+function render(){renderList();document.getElementById('recent').innerHTML=tasks.slice(0,5).map(t=>`<div class="task"><div class="taskicon">${t.team==='A'?'⚡':'🚦'}</div><div><b>${t.type}</b><div class="muted">${t.place}</div></div><span class="pill${statusClass(t.status)}">${t.status}</span></div>`).join('');
+document.getElementById('handoffList').innerHTML=tasks.filter(t=>t.status!=='เสร็จสิ้น').map(t=>`<div class="task"><div><b>${t.type}</b><div class="muted">${t.place} · ทีม ${t.team}</div></div><button class="secondary" onclick="handoff(${t.id})">ส่งต่อ</button></div>`).join('');
+document.getElementById('notiList').innerHTML=tasks.slice(0,6).map(t=>`<div class="task"><div class="taskicon">🔔</div><div><b>${t.status==='เร่งด่วน'?'เคสเร่งด่วน':'อัปเดตงาน'}</b><div class="muted">${t.type} · ${t.place}</div></div></div>`).join('');
+let counts={เสร็จสิ้น:0,'กำลังดำเนินการ':0,เร่งด่วน:0,'รออุปกรณ์':0};tasks.forEach(t=>counts[t.status]=(counts[t.status]||0)+1);document.getElementById('total').textContent=tasks.length;document.getElementById('done').textContent=counts['เสร็จสิ้น']||0;document.getElementById('reportRows').innerHTML=Object.entries(counts).map(([k,v])=>`<p>${k} <b style="float:right">${v}</b></p>`).join('')}
+function filterTasks(team){renderList(team==='all'?tasks:tasks.filter(t=>t.team===team));}
+function cycleStatus(id){let t=tasks.find(x=>x.id===id);let s=['กำลังดำเนินการ','รออุปกรณ์','เสร็จสิ้น'];let i=s.indexOf(t.status);t.status=s[(i+1)%s.length];toast('อัปเดตสถานะงานแล้ว');render()}
+function handoff(id){let t=tasks.find(x=>x.id===id);t.team=t.team==='A'?'B':'A';toast('ส่งต่อเคสให้ทีม '+t.team+' แล้ว');render()}
+function addTask(){let place=document.getElementById('place').value.trim(),detail=document.getElementById('detail').value.trim(),type=document.getElementById('type').value,team=document.getElementById('team').value;if(!place){toast('กรุณาระบุสถานที่');return}tasks.unshift({id:Date.now(),type,place,team,status:'กำลังดำเนินการ',time:'เมื่อสักครู่'});document.getElementById('place').value='';document.getElementById('detail').value='';toast('แจ้งงานสำเร็จ!');show('tasks')}
+render();
+</script>
+</body>
+</html>
